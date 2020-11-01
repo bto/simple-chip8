@@ -119,8 +119,10 @@ impl Chip8 {
 
     fn load_rom(&mut self) {
         let args: Vec<String> = env::args().collect();
-        let mut f = File::open(args[1].as_str()).expect("File not found");
-        f.read(&mut self.ram[START_ADDR..]).unwrap();
+        let file = args[1].as_str();
+        let length = std::fs::metadata(file).unwrap().len() as usize;
+        let mut f = File::open(file).expect("File not found");
+        f.read_exact(&mut self.ram[START_ADDR..(START_ADDR+length)]).unwrap();
     }
 
     fn run(&mut self) {
