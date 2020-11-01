@@ -5,8 +5,6 @@ use std::thread;
 use std::time::Duration;
 
 #[macro_use] extern crate log;
-use log4rs;
-use rand;
 use termion::{AsyncReader, async_stdin, color};
 use termion::event::Key;
 use termion::input::TermRead;
@@ -114,8 +112,8 @@ impl Chip8 {
     }
 
     fn load_fontset(&mut self) {
-        for i in 0..FONT_SET.len() {
-            self.ram[i] = FONT_SET[i];
+        for (i, font) in FONT_SET.iter().enumerate() {
+            self.ram[i] = *font;
         }
     }
 
@@ -175,7 +173,7 @@ impl Chip8 {
     }
 
     fn display_clear(&self) {
-        write!(stdout(), "{}{}", termion::clear::All, termion::cursor::Hide).unwrap();
+        print!("{}{}", termion::clear::All, termion::cursor::Hide);
     }
 
     fn display_draw(&self) {
@@ -191,18 +189,17 @@ impl Chip8 {
                 output += " ";
             }
         }
-        write!(stdout(), "{}", output).unwrap();
+        print!("{}", output);
         stdout().flush().unwrap();
     }
 
     fn display_restore(&self) {
-        write!(
-            stdout(),
+        print!(
             "{}{}{}",
             termion::clear::All,
             termion::cursor::Goto(1, 1),
             termion::cursor::Show
-        ).unwrap();
+        );
     }
 
     fn get_key(&self, stdin: &mut AsyncReader) -> u8 {
@@ -243,7 +240,7 @@ impl Chip8 {
 
     fn sound(&mut self) {
         if self.sound_timer > 0 {
-            write!(stdout(), "{}", 0x07u8 as char).unwrap();
+            print!("{}", 0x07u8 as char);
             self.sound_timer = 0;
         }
     }
@@ -308,6 +305,7 @@ impl Chip8 {
         }
     }
 
+    #[allow(dead_code)]
     fn op_not_impl(&self) -> Pc {
         error!("Not implemented yet");
         Pc::Inc
